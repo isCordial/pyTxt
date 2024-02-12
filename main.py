@@ -138,6 +138,8 @@ def main(stdscr):
             ## if quit-key is pressed, exit program
             isRunning = False
 
+        elif key == curses.KEY_UP or key == curses.KEY_RIGHT or key == curses.KEY_LEFT:
+            continue
 
         ## if we press ENTER or Down Arrow, move cursor down a line
         elif key == curses.KEY_ENTER or key == curses.KEY_DOWN or key == 10:
@@ -169,12 +171,10 @@ name = promptUser()
 text = curses.wrapper(main)
 
 ## Write new changes to the file
-f = open(name, "r+")
+f = open(name, "w")
 for i in range(0, len(text)):
     f.write("".join(text[i]))
-    f.write("\n")
 
-print(f.read())
 f.close()
 print("Succes")
 
