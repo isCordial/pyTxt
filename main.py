@@ -163,7 +163,7 @@ def main(stdscr):
         elif key == curses.KEY_UP or key == curses.KEY_RIGHT or key == curses.KEY_LEFT or key == curses.KEY_DOWN:
             continue
 
-        ## if we press ENTER or Down Arrow, move cursor down a line
+        ## if we press ENTER, move cursor down a line
         elif key == curses.KEY_ENTER or key == 10:
             myText[curY].append(chr(key))
             curY += 1
