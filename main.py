@@ -27,7 +27,10 @@ def parseFile(file):
 
 name = ''
 
+## Prompt user for file to create / edit
 def promptUser():
+
+    ## Function for validating yes/no inputs
     def valInput():
         while True:
             try:
@@ -60,6 +63,13 @@ def promptUser():
 ## Instantiates curses window
 def main(stdscr):
 
+     # Get terminal size
+    height, width = stdscr.getmaxyx()
+
+    ## Window informing the user of how to exit
+    warning_win = curses.newwin(1, width, height-1, 0)
+    warning_win.addstr("Press 'q' to exit. No, you cannot add the letter 'q' to text with this program.")
+
     ## Get the current x-coordinate of the cursori
     def cursorX():
         return stdscr.getyx()[1]
@@ -80,6 +90,7 @@ def main(stdscr):
     curY = 0
     curX = 0
 
+    ## Display the file contents on the screen
     myText = parseFile(name)
     numLines = len(myText)
     if numLines < 1:
@@ -89,7 +100,7 @@ def main(stdscr):
             stdscr.move(i, 0)
             curY = i
             stdscr.addstr("".join(myText[i]))
-        curX = len(myText[curY]) - 1
+        curX = len(myText[curY])
         stdscr.move(curY, curX)
 
     ## on/off switch for the while loop
@@ -111,13 +122,21 @@ def main(stdscr):
             ## if no text is on current line, move cursor to previous line
             if curX == 0:
 
-                ## if greater than 0, move line up
+                ## if greater than 0, move line up, and del the trailing newline char
                 if curY > 0:
                     ## pop the line's string off the list
                     myText.pop()
                     curY -= 1
+
                     ## set X-coord equal to length of this line's string
                     curX = len(myText[curY])
+
+                    ## delete new line char, if it exists
+                    if myText[curY][curX - 1] == "\n":
+                        myText[curY].pop()
+                        curX -= 1
+
+                    ## update cursor
                     stdscr.move(curY, curX)
 
                 ## else do nothing
@@ -138,11 +157,12 @@ def main(stdscr):
             ## if quit-key is pressed, exit program
             isRunning = False
 
-        elif key == curses.KEY_UP or key == curses.KEY_RIGHT or key == curses.KEY_LEFT:
+        elif key == curses.KEY_UP or key == curses.KEY_RIGHT or key == curses.KEY_LEFT or key == curses.KEY_DOWN:
             continue
 
         ## if we press ENTER or Down Arrow, move cursor down a line
-        elif key == curses.KEY_ENTER or key == curses.KEY_DOWN or key == 10:
+        elif key == curses.KEY_ENTER or key == 10:
+            myText[curY].append(chr(key))
             curY += 1
             ## if there is nothing on this line, add an empty string list
             if len(myText) - 1 < curY:
@@ -176,7 +196,7 @@ for i in range(0, len(text)):
     f.write("".join(text[i]))
 
 f.close()
-print("Succes")
+print("Success! Saved to {}".format(name))
 
 # for line in text:
 #     print(''.join(line))
