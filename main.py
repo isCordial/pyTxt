@@ -66,9 +66,6 @@ def main(stdscr):
      # Get terminal size
     height, width = stdscr.getmaxyx()
 
-    ## Window informing the user of how to exit
-    warning_win = curses.newwin(1, width, height-1, 0)
-    warning_win.addstr("Press 'q' to exit. No, you cannot add the letter 'q' to text with this program.")
 
     ## Get the current x-coordinate of the cursori
     def cursorX():
@@ -112,6 +109,10 @@ def main(stdscr):
         ## set curX equal to the length of this line's text
         curX = cursorX()
 
+        ## Window informing the user of how to exit
+        warning_win = curses.newwin(1, width, height-1, 0)
+        warning_win.addstr("Press 'q' to exit. Sorry about that.")
+        warning_win.refresh()
 
         ## wait for user input
         key = stdscr.getch()
@@ -139,18 +140,20 @@ def main(stdscr):
                     ## update cursor
                     stdscr.move(curY, curX)
 
-                ## else do nothing
+                ## else do nothing, maintain cursor position
                 else:
+                    stdscr.move(curY, curX)
                     continue
 
 
             ## else, pop the last element from the current line's string and move cursor
             else:
-                myText[curY].pop()
-                curX -= 1
-                ## delete char from screen and move cursor
-                stdscr.move(curY, curX)
-                stdscr.delch(curY, curX)
+                if len(myText[curY]) > 0:
+                    ## delete char from screen and move cursor
+                    myText[curY].pop()
+                    curX -= 1
+                    stdscr.move(curY, curX)
+                    stdscr.delch(curY, curX)
 
         ## compare ASCII key value to that of our quit-key
         elif key == ord("q"):
