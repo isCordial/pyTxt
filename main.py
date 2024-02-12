@@ -1,10 +1,64 @@
 import curses
 import time
 
-# Merely wipes the board, waits a few seconds, then returns it to its previous state
-def main(stdscr):
+## Parses a designated file and returns its content
+## as a list of lists
+def parseFile(file):
+    txtFile = []
+    dirFile = "./" + file
+    name = dirFile
 
-    #### FUNCTIONS ####
+    f = open(dirFile, "r")
+
+    rawTxt = f.readlines()
+    f.close()
+
+    i = 0
+    for line in rawTxt:
+        txtFile.append([])
+        for char in rawTxt[i]:
+            txtFile[i].append(char)
+        i += 1
+
+    return txtFile
+
+######################################
+
+
+name = ''
+
+def promptUser():
+    def valInput():
+        while True:
+            try:
+                f = input("--> ")
+                if f != "y" and f != "n":
+                    raise ValueError("Please input 'y' for Yes OR 'n' for No")
+                elif f == "y":
+                    return True
+                else:
+                    return False
+            except ValueError as ve:
+                print(ve)
+
+    print("Welcome to pyTxt!")
+    print("You can edit existing files, or create new one!")
+    print("Are you editing an existing file? (y/n): ")
+    a1 = valInput()
+    if a1 == True:
+        print("WARNING: Your file must be in the current directory.")
+        name = input("Please enter the name of your file, including extension: ")
+    else:
+        print("Your file will be saved to the current directory.")
+        name = input("Please enter the name of your file: ")
+        with open(name, "w") as n:
+            pass
+
+    return name
+
+
+## Instantiates curses window
+def main(stdscr):
 
     ## Get the current x-coordinate of the cursori
     def cursorX():
@@ -16,7 +70,7 @@ def main(stdscr):
 
     ## Initialize a list for storing our data that will be written to a file.
     ## This list will be a list of lists. Each individual list will contain the chars that make up a string.
-    myText = [[]]
+
 
     ## Enable cursor
     curses.curs_set(1)
@@ -26,8 +80,17 @@ def main(stdscr):
     curY = 0
     curX = 0
 
-    ## Display all output on the screen
-    # curses.echo()
+    myText = parseFile(name)
+    numLines = len(myText)
+    if numLines < 1:
+        myText.append([])
+    else:
+        for i in range(0, numLines):
+            stdscr.move(i, 0)
+            curY = i
+            stdscr.addstr("".join(myText[i]))
+        curX = len(myText[curY]) - 1
+        stdscr.move(curY, curX)
 
     ## on/off switch for the while loop
     isRunning = True
@@ -97,11 +160,23 @@ def main(stdscr):
             stdscr.addch(cursorY(),cursorX(),key)
 
 
-    curses.beep()
     curses.endwin()
     return myText
 
 ## returns a list of lists. this represents a text file with multiple lines each containing a string of text
+
+name = promptUser()
 text = curses.wrapper(main)
-for line in text:
-    print(''.join(line))
+
+## Write new changes to the file
+f = open(name, "r+")
+for i in range(0, len(text)):
+    f.write("".join(text[i]))
+    f.write("\n")
+
+print(f.read())
+f.close()
+print("Succes")
+
+# for line in text:
+#     print(''.join(line))
